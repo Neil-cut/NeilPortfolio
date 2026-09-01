@@ -1,0 +1,814 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Neil Cut — Portfolio</title>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Figtree:wght@300;400;500;600;700;900&family=JetBrains+Mono:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #050505;
+  --surface: #0c0c0c;
+  --border: #181818;
+  --border2: #252525;
+  --white: #f2ede6;
+  --muted: #444;
+  --dim: #222;
+  --orange: #ff5500;
+  --orange-glow: rgba(255,85,0,0.15);
+  --display: 'Bebas Neue', sans-serif;
+  --body: 'Figtree', sans-serif;
+  --mono: 'JetBrains Mono', monospace;
+}
+
+*, *::before, *::after { margin:0; padding:0; box-sizing:border-box; }
+html { scroll-behavior:smooth; }
+::selection { background:var(--orange); color:#000; }
+
+body {
+  background:var(--bg);
+  color:var(--white);
+  font-family:var(--body);
+  overflow-x:hidden;
+}
+
+/* ── NOISE ── */
+body::before {
+  content:''; position:fixed; inset:0; z-index:9999; pointer-events:none;
+  background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 512 512' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.028'/%3E%3C/svg%3E");
+}
+
+/* ════════════════════════════════
+   SPLIT SCREEN LANDING
+════════════════════════════════ */
+#landing {
+  position:fixed; inset:0; z-index:500;
+  display:flex;
+  transition:opacity .6s ease, visibility .6s;
+}
+#landing.hidden { opacity:0; visibility:hidden; pointer-events:none; }
+
+.split {
+  flex:1; position:relative; overflow:hidden;
+  display:flex; flex-direction:column;
+  align-items:center; justify-content:center;
+  cursor:pointer;
+  transition:flex .7s cubic-bezier(.76,0,.24,1);
+}
+#split-left { border-right:1px solid var(--border2); }
+
+/* Background images */
+#split-left::before {
+  content:''; position:absolute; inset:0;
+  background:url('GTA_NUMWORKS_MINIA.png') center/cover;
+  filter:brightness(.08) saturate(.3);
+  transition:filter .5s, transform .6s;
+}
+#split-right::before {
+  content:''; position:absolute; inset:0;
+  background:url('terraria_scratch.jpg') center/cover;
+  filter:brightness(.08) saturate(.3);
+  transition:filter .5s, transform .6s;
+}
+
+.split:hover::before {
+  filter:brightness(.18) saturate(.6);
+  transform:scale(1.04);
+}
+
+#landing:has(#split-left:hover) #split-left { flex:1.6; }
+#landing:has(#split-right:hover) #split-right { flex:1.6; }
+
+.split-content {
+  position:relative; z-index:2;
+  text-align:center; padding:2rem;
+  pointer-events:none;
+}
+
+.split-number {
+  font-family:var(--mono); font-size:.6rem;
+  letter-spacing:.4em; text-transform:uppercase;
+  color:var(--muted); margin-bottom:1.8rem;
+}
+
+.split-title {
+  font-family:var(--display);
+  font-size:clamp(5rem,10vw,9rem);
+  line-height:.88; letter-spacing:.04em;
+  text-transform:uppercase;
+  color:var(--white);
+  transition:color .3s;
+}
+
+.split:hover .split-title { color:var(--orange); }
+
+.split-sub {
+  font-family:var(--mono); font-size:.62rem;
+  letter-spacing:.22em; text-transform:uppercase;
+  color:var(--muted); margin-top:1.4rem;
+  transition:color .3s;
+}
+.split:hover .split-sub { color:var(--white); }
+
+.split-arrow {
+  margin-top:2.5rem; font-size:1.4rem; color:var(--orange);
+  opacity:0; transform:translateY(6px);
+  transition:opacity .3s, transform .3s;
+}
+.split:hover .split-arrow { opacity:1; transform:translateY(0); }
+
+/* Divider center logo */
+.landing-center {
+  position:absolute; left:50%; top:50%;
+  transform:translate(-50%,-50%);
+  z-index:10; pointer-events:none;
+  display:flex; flex-direction:column; align-items:center; gap:.6rem;
+}
+.landing-logo {
+  font-family:var(--display);
+  font-size:1.1rem; letter-spacing:.3em; text-transform:uppercase;
+  color:var(--orange); white-space:nowrap;
+  background:var(--bg); padding:.3rem .9rem;
+  border:1px solid var(--border2);
+}
+.landing-line {
+  width:1px; height:40px; background:var(--border2);
+}
+
+/* ════════════════════════════════
+   MAIN SITE
+════════════════════════════════ */
+#site { display:none; }
+#site.active { display:block; }
+
+/* ── NAV ── */
+nav {
+  position:fixed; top:0; left:0; right:0; z-index:300;
+  height:52px; display:flex; align-items:center;
+  justify-content:space-between;
+  padding:0 2.5rem;
+  border-bottom:1px solid var(--border);
+  background:rgba(5,5,5,.96);
+  backdrop-filter:blur(16px);
+}
+.nav-logo {
+  font-family:var(--display);
+  font-size:1.4rem; letter-spacing:.12em;
+  color:var(--white); text-decoration:none;
+  cursor:pointer;
+}
+.nav-logo em { color:var(--orange); font-style:normal; }
+.nav-right { display:flex; align-items:center; gap:2rem; }
+.nav-links { display:flex; gap:2rem; list-style:none; }
+.nav-links a {
+  font-family:var(--mono); font-size:.6rem;
+  letter-spacing:.14em; text-transform:uppercase;
+  color:var(--muted); text-decoration:none;
+  transition:color .15s;
+}
+.nav-links a:hover, .nav-links a.active { color:var(--white); }
+.nav-back {
+  font-family:var(--mono); font-size:.6rem;
+  letter-spacing:.14em; text-transform:uppercase;
+  color:var(--muted); cursor:pointer;
+  transition:color .15s; border:none; background:none;
+  padding:0;
+}
+.nav-back:hover { color:var(--orange); }
+
+/* ── SECTION TOGGLE ── */
+.section-switcher {
+  position:fixed; top:52px; left:0; right:0; z-index:299;
+  display:flex;
+  background:#fff;
+  box-shadow:0 2px 20px rgba(0,0,0,0.4);
+}
+.switcher-btn {
+  flex:1; padding:1rem 2rem; text-align:center;
+  font-family:var(--mono); font-size:.68rem;
+  letter-spacing:.3em; text-transform:uppercase;
+  color:#aaa; cursor:pointer;
+  border:none; background:transparent;
+  border-bottom:3px solid transparent;
+  transition:all .2s ease;
+  position:relative; overflow:hidden;
+}
+.switcher-btn::after {
+  content:''; position:absolute;
+  bottom:0; left:50%; right:50%;
+  height:3px; background:#000;
+  transition:left .25s ease, right .25s ease;
+}
+.switcher-btn:hover { color:#000; background:rgba(0,0,0,0.04); }
+.switcher-btn:hover::after { left:0; right:0; }
+.switcher-btn.active {
+  color:#000; font-weight:700;
+  background:#f5f5f5;
+}
+.switcher-btn.active::after { left:0; right:0; }
+
+/* Séparateur vertical entre les deux */
+#sw-graph { border-right:1px solid #e0e0e0; }
+
+/* ── HERO ── */
+.hero {
+  min-height:100vh; padding-top:calc(52px + 40px);
+  display:flex; flex-direction:column; justify-content:flex-end;
+  padding-bottom:5rem; padding-left:2.5rem; padding-right:2.5rem;
+  position:relative; overflow:hidden;
+}
+.hero-bg {
+  position:absolute; inset:0;
+  background-size:cover; background-position:center;
+  filter:brightness(.13) saturate(.3);
+  transform:scale(1.03);
+  transition:transform 10s ease;
+}
+.hero-bg.montage   { background-image:url('Showreelv2.png'); }
+
+.hero-fade {
+  position:absolute; bottom:0; left:0; right:0; height:60%;
+  background:linear-gradient(to top, var(--bg), transparent);
+  pointer-events:none;
+}
+.hero-line {
+  position:absolute; bottom:0; left:0; right:0; height:2px;
+  background:linear-gradient(90deg, transparent 0%, var(--orange) 30%, var(--orange) 70%, transparent 100%);
+}
+
+.hero-tag {
+  font-family:var(--mono); font-size:.65rem;
+  letter-spacing:.35em; text-transform:uppercase; color:var(--orange);
+  margin-bottom:1.5rem; position:relative; z-index:2;
+  opacity:0; animation:fadeUp .5s .1s forwards;
+  display:flex; align-items:center; gap:1rem;
+}
+.hero-tag::before { content:''; width:24px; height:1px; background:var(--orange); }
+
+.hero-title {
+  font-family:var(--display);
+  font-size:clamp(5rem,14vw,12.5rem);
+  line-height:.85; letter-spacing:.02em; text-transform:uppercase;
+  position:relative; z-index:2;
+  opacity:0; animation:fadeUp .6s .25s forwards;
+}
+.hero-title .stroke {
+  color:transparent; -webkit-text-stroke:2px var(--white);
+}
+.hero-title .o { color:var(--orange); }
+
+.hero-desc {
+  font-family:var(--mono); font-size:.72rem;
+  letter-spacing:.15em; text-transform:uppercase; color:var(--muted);
+  margin-top:1.8rem; position:relative; z-index:2;
+  opacity:0; animation:fadeUp .5s .4s forwards;
+}
+
+/* ── CONTENT SECTIONS ── */
+.content-section {
+  display:none;
+  padding-top:calc(52px + 40px);
+}
+.content-section.active { display:block; }
+
+/* ── SECTION LABELS ── */
+section { padding:5.5rem 2.5rem; border-top:1px solid var(--border); }
+.s-label {
+  font-family:var(--mono); font-size:.58rem;
+  letter-spacing:.3em; text-transform:uppercase; color:var(--orange);
+  margin-bottom:3rem; display:flex; align-items:center; gap:1rem;
+}
+.s-label::after { content:''; flex:1; max-width:50px; height:1px; background:var(--orange); opacity:.4; }
+
+/* ── ABOUT ── */
+.about-grid { display:grid; grid-template-columns:1.2fr .8fr; gap:5rem; align-items:start; }
+.about-headline {
+  font-family:var(--display);
+  font-size:clamp(3rem,5.5vw,5.5rem);
+  line-height:.88; text-transform:uppercase; letter-spacing:.02em;
+}
+.about-headline .o { color:var(--orange); }
+.about-body {
+  font-family:var(--mono); font-size:.74rem;
+  line-height:2; color:#777; margin-top:2rem;
+}
+.about-body strong { color:var(--white); }
+.stats {
+  display:grid; grid-template-columns:1fr 1fr;
+  gap:1px; background:var(--border); border:1px solid var(--border);
+}
+.stat { background:var(--bg); padding:1.8rem 1.4rem; transition:background .2s; }
+.stat:hover { background:var(--surface); }
+.stat-n {
+  font-family:var(--display); font-size:3.2rem; line-height:1;
+}
+.stat-n b { color:var(--orange); }
+.stat-txt {
+  font-family:var(--mono); font-size:.58rem;
+  letter-spacing:.15em; text-transform:uppercase; color:var(--muted);
+  margin-top:.5rem;
+}
+.stat-sm { font-family:var(--display); font-size:1.4rem; line-height:1.1; }
+
+/* ── GRID MINIATURES ── */
+.section-h {
+  font-family:var(--display); font-size:clamp(2.5rem,4vw,4rem);
+  text-transform:uppercase; letter-spacing:.03em; margin-bottom:2rem;
+}
+.minia-grid {
+  display:grid; grid-template-columns:repeat(2,1fr);
+  gap:2px; background:var(--border);
+}
+.minia-card {
+  position:relative; overflow:hidden;
+  background:var(--surface); aspect-ratio:16/9; cursor:zoom-in;
+}
+.minia-card img {
+  width:100%; height:100%; object-fit:cover; display:block;
+  transition:transform .55s ease, filter .4s;
+}
+.minia-card:hover img { transform:scale(1.07); filter:brightness(.35); }
+.minia-overlay {
+  position:absolute; inset:0; padding:1.4rem;
+  display:flex; flex-direction:column; justify-content:flex-end;
+  background:linear-gradient(to top, rgba(0,0,0,.9) 0%, transparent 55%);
+  opacity:0; transition:opacity .3s;
+}
+.minia-card:hover .minia-overlay { opacity:1; }
+.minia-type {
+  font-family:var(--mono); font-size:.55rem;
+  letter-spacing:.2em; text-transform:uppercase; color:var(--orange);
+  margin-bottom:.3rem;
+}
+.minia-name {
+  font-family:var(--display); font-size:1.3rem;
+  text-transform:uppercase; letter-spacing:.04em; line-height:1.1;
+}
+.minia-tag {
+  position:absolute; top:.8rem; right:.8rem;
+  font-family:var(--mono); font-size:.5rem; letter-spacing:.15em;
+  text-transform:uppercase; padding:.22rem .5rem;
+  border:1px solid var(--orange); color:var(--orange);
+  background:rgba(0,0,0,.75);
+}
+.minia-zoom {
+  position:absolute; top:50%; left:50%;
+  transform:translate(-50%,-50%) scale(.8);
+  width:48px; height:48px; border-radius:50%;
+  border:1px solid rgba(255,255,255,.4);
+  display:flex; align-items:center; justify-content:center;
+  font-size:1.2rem; color:rgba(255,255,255,.8);
+  opacity:0; transition:opacity .3s, transform .3s;
+  pointer-events:none;
+}
+.minia-card:hover .minia-zoom { opacity:1; transform:translate(-50%,-50%) scale(1); }
+
+/* ── BANNIÈRES ── */
+.banners-grid {
+  display:grid; grid-template-columns:repeat(2,1fr);
+  gap:2px; background:var(--border);
+}
+.banner-card {
+  overflow:hidden; cursor:zoom-in; position:relative; background:var(--surface);
+}
+.banner-card img { width:100%; display:block; transition:transform .5s, filter .4s; }
+.banner-card:hover img { transform:scale(1.03); filter:brightness(.45); }
+.banner-icon {
+  position:absolute; inset:0; display:flex; align-items:center; justify-content:center;
+  font-size:1.6rem; opacity:0; transition:opacity .3s; pointer-events:none;
+}
+.banner-card:hover .banner-icon { opacity:1; }
+.banner-meta { padding:.9rem 1.2rem; background:var(--surface); border-top:1px solid var(--border); }
+.banner-tag {
+  font-family:var(--mono); font-size:.55rem;
+  letter-spacing:.2em; text-transform:uppercase; color:var(--orange); margin-bottom:.2rem;
+}
+.banner-name {
+  font-family:var(--display); font-size:1rem;
+  text-transform:uppercase; letter-spacing:.05em;
+}
+
+/* ── VIDEOS ── */
+.videos-wrap { display:flex; flex-direction:column; gap:2px; background:var(--border); }
+
+/* Horizontal video */
+.video-row {
+  display:grid; grid-template-columns:1fr 280px;
+  background:var(--surface); gap:0;
+}
+.video-embed { position:relative; padding-top:56.25%; background:#000; }
+.video-embed iframe { position:absolute; inset:0; width:100%; height:100%; border:none; }
+
+/* Vertical video (portrait) */
+.video-row-vertical {
+  display:grid; grid-template-columns:220px 1fr;
+  background:var(--surface); gap:0;
+}
+.video-embed-vertical { position:relative; padding-top:0; background:#000; height:390px; }
+.video-embed-vertical iframe { position:absolute; inset:0; width:100%; height:100%; border:none; }
+
+.video-info {
+  padding:2rem 1.8rem; display:flex; flex-direction:column;
+  justify-content:space-between; border-left:1px solid var(--border);
+}
+.video-info-tag {
+  font-family:var(--mono); font-size:.55rem;
+  letter-spacing:.2em; text-transform:uppercase; color:var(--orange); margin-bottom:.6rem;
+}
+.video-info-title {
+  font-family:var(--display); font-size:1.6rem;
+  text-transform:uppercase; letter-spacing:.04em; line-height:1.1;
+}
+.video-info-body {
+  font-family:var(--mono); font-size:.68rem;
+  line-height:1.9; color:#666; margin-top:1rem;
+}
+.video-info-meta {
+  margin-top:1.5rem; padding-top:1.2rem; border-top:1px solid var(--border);
+  font-family:var(--mono); font-size:.58rem;
+  letter-spacing:.1em; text-transform:uppercase; color:var(--muted);
+}
+
+/* ── CONTACT ── */
+.contact-grid { display:grid; grid-template-columns:1fr 1fr; gap:6rem; align-items:start; }
+.contact-headline {
+  font-family:var(--display);
+  font-size:clamp(3.5rem,6vw,6.5rem);
+  line-height:.88; text-transform:uppercase; letter-spacing:.02em;
+}
+.contact-headline .o { color:var(--orange); }
+.contact-sub {
+  font-family:var(--mono); font-size:.7rem;
+  line-height:2; color:#666; margin-top:1.6rem;
+}
+.contact-list {
+  display:flex; flex-direction:column;
+  gap:1px; background:var(--border); border:1px solid var(--border);
+}
+.contact-item {
+  display:flex; justify-content:space-between; align-items:center;
+  padding:1.5rem 1.6rem; background:var(--bg);
+  text-decoration:none; color:var(--white);
+  transition:background .15s, padding-left .2s;
+}
+.contact-item:hover { background:var(--surface); padding-left:2rem; }
+.ci-label {
+  font-family:var(--mono); font-size:.52rem;
+  letter-spacing:.18em; text-transform:uppercase; color:var(--muted);
+  margin-bottom:.3rem;
+}
+.ci-val {
+  font-family:var(--display); font-size:1.3rem;
+  text-transform:uppercase; letter-spacing:.06em;
+}
+.ci-val-small {
+  font-family:var(--mono); font-size:.8rem;
+  letter-spacing:.05em;
+}
+.ci-arrow { color:var(--orange); font-size:1rem; transition:transform .15s; }
+.contact-item:hover .ci-arrow { transform:translateX(5px); }
+.contact-plain { cursor:default; }
+.contact-plain:hover { padding-left:1.6rem; }
+
+/* ── FOOTER ── */
+footer {
+  padding:1.6rem 2.5rem; border-top:1px solid var(--border);
+  display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:.5rem;
+}
+.footer-copy {
+  font-family:var(--mono); font-size:.55rem;
+  letter-spacing:.1em; color:var(--muted);
+}
+.footer-logo {
+  font-family:var(--display); font-size:1.1rem; letter-spacing:.12em;
+}
+.footer-logo em { color:var(--orange); font-style:normal; }
+.footer-claude {
+  width:100%; text-align:center;
+  font-family:var(--mono); font-size:.44rem;
+  letter-spacing:.08em; color:var(--dim); margin-top:.2rem;
+}
+
+/* ── LIGHTBOX ── */
+.lightbox {
+  display:none; position:fixed; inset:0; z-index:9000;
+  background:rgba(0,0,0,.96); align-items:center; justify-content:center; cursor:zoom-out;
+}
+.lightbox.active { display:flex; }
+.lightbox img { max-width:90vw; max-height:90vh; object-fit:contain; border:1px solid var(--border); cursor:default; }
+.lb-close {
+  position:absolute; top:1.5rem; right:2rem;
+  font-family:var(--mono); font-size:.62rem;
+  letter-spacing:.2em; text-transform:uppercase; color:var(--muted);
+  cursor:pointer; transition:color .15s; border:none; background:none;
+}
+.lb-close:hover { color:var(--white); }
+.lb-caption {
+  position:absolute; bottom:2rem; left:50%; transform:translateX(-50%);
+  font-family:var(--mono); font-size:.58rem;
+  letter-spacing:.2em; text-transform:uppercase; color:var(--muted);
+}
+
+/* ── REVEAL ── */
+.reveal { opacity:0; transform:translateY(24px); transition:opacity .65s ease, transform .65s ease; }
+.reveal.visible { opacity:1; transform:none; }
+.d1 { transition-delay:.1s; } .d2 { transition-delay:.2s; } .d3 { transition-delay:.3s; }
+
+/* ── ANIMATIONS ── */
+@keyframes fadeUp {
+  from { opacity:0; transform:translateY(20px); }
+  to   { opacity:1; transform:none; }
+}
+
+/* ── RESPONSIVE ── */
+@media(max-width:860px){
+  .about-grid,.contact-grid { grid-template-columns:1fr; gap:3rem; }
+  .minia-grid,.banners-grid { grid-template-columns:1fr; }
+  .video-row { grid-template-columns:1fr; }
+  .video-row-vertical { grid-template-columns:1fr; }
+  .video-embed-vertical { height:300px; }
+  .split-title { font-size:clamp(3rem,15vw,6rem); }
+  nav { padding:0 1.2rem; }
+  section { padding:4rem 1.2rem; }
+  .landing-center { display:none; }
+}
+</style>
+</head>
+<body>
+
+<!-- LIGHTBOX -->
+<div class="lightbox" id="lightbox" onclick="closeLBClick(event)">
+  <button class="lb-close" onclick="closeLB()">[ fermer × ]</button>
+  <img id="lb-img" src="" alt="">
+  <span class="lb-caption" id="lb-cap"></span>
+</div>
+
+<!-- ══════════════════════════════
+     SPLIT LANDING
+══════════════════════════════ -->
+<div id="landing">
+
+  <!-- Divider logo -->
+  <div class="landing-center">
+    <div class="landing-line"></div>
+    <div class="landing-logo">Neil<em style="color:var(--orange);">Cut</em></div>
+    <div class="landing-line"></div>
+  </div>
+
+  <!-- MONTAGE — entrée unique -->
+  <div class="split" id="split-right" style="width:100%;" onclick="enterSection('montage')">
+    <div class="split-content">
+      <div class="split-number">01 /</div>
+      <div class="split-title">Montage</div>
+      <div class="split-sub">Vidéos · Showreel · Storytelling</div>
+      <div class="split-arrow">↗</div>
+    </div>
+  </div>
+
+</div>
+
+<!-- ══════════════════════════════
+     MAIN SITE
+══════════════════════════════ -->
+<div id="site">
+
+  <!-- NAV -->
+  <nav>
+    <div class="nav-logo" onclick="goHome()">Neil<em>Cut</em></div>
+    <div class="nav-right">
+      <ul class="nav-links" id="nav-links">
+        <li><a href="#profil">Profil</a></li>
+        <li><a href="#portfolio" id="nav-portfolio">Portfolio</a></li>
+        <li><a href="#contact">Contact</a></li>
+      </ul>
+      <button class="nav-back" onclick="goHome()">← Accueil</button>
+    </div>
+  </nav>
+
+  <!-- SECTION SWITCHER -->
+  <div class="section-switcher">
+    <button class="switcher-btn" id="sw-montage" onclick="switchTo('montage')">01 — Montage</button>
+  </div>
+
+
+  <!-- ════ MONTAGE SECTION ════ -->
+  <div class="content-section" id="section-montage">
+
+    <!-- Hero Montage -->
+    <div class="hero">
+      <div class="hero-bg montage" id="hero-bg-m"></div>
+      <div class="hero-fade"></div>
+      <div class="hero-line"></div>
+      <p class="hero-tag">Montage · Storytelling</p>
+      <h1 class="hero-title">Montage</h1>
+      <p class="hero-desc">Vidéos · Showreel · Format court &amp; long</p>
+    </div>
+
+    <!-- Vidéos -->
+    <section id="portfolio">
+      <p class="s-label">// 01 — Montages</p>
+      <h2 class="section-h reveal">Mes montages</h2>
+      <div class="videos-wrap reveal d1">
+
+        <!-- GTA Numworks -->
+        <div class="video-row">
+          <div class="video-embed">
+            <iframe src="https://www.youtube.com/embed/OloJyaFEcg4?rel=0&modestbranding=1"
+              title="GTA sur Calculatrice Numworks"
+              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+              allowfullscreen></iframe>
+          </div>
+          <div class="video-info">
+            <div>
+              <p class="video-info-tag">// Devlog · Gaming / Code</p>
+              <p class="video-info-title">GTA sur Calculatrice Numworks</p>
+              <p class="video-info-body">Devlog complet — recréation d'un GTA jouable directement sur une calculatrice NumWorks en Python.</p>
+            </div>
+            <div class="video-info-meta">Neil Cut · Gaming · Format long</div>
+          </div>
+        </div>
+
+        <!-- Showreel -->
+        <div class="video-row">
+          <div class="video-embed">
+            <iframe src="https://www.youtube.com/embed/P1-yFx_u0KA?rel=0&modestbranding=1"
+              title="Showreel Neil Cut"
+              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+              allowfullscreen></iframe>
+          </div>
+          <div class="video-info">
+            <div>
+              <p class="video-info-tag">// Showreel · 2024</p>
+              <p class="video-info-title">Mon Showreel</p>
+            </div>
+            <div class="video-info-meta">Neil Cut · Montage complet</div>
+          </div>
+        </div>
+
+        <!-- Terraria Scratch -->
+        <div class="video-row">
+          <div class="video-embed">
+            <iframe src="https://www.youtube.com/embed/jhzReuKBwUk?rel=0&modestbranding=1"
+              title="Terraria Scratch"
+              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+              allowfullscreen></iframe>
+          </div>
+          <div class="video-info">
+            <div>
+              <p class="video-info-tag">// Montage complet · Gaming / Code</p>
+              <p class="video-info-title">J'ai plagié un plagiat de Terraria sur Scratch</p>
+            </div>
+            <div class="video-info-meta">Neil Cut · Gaming · Format long</div>
+          </div>
+        </div>
+
+        <!-- Vidéo verticale -->
+        <div class="video-row-vertical">
+          <div class="video-embed-vertical">
+            <iframe src="https://www.youtube.com/embed/qnm8_NrnTBA?rel=0&modestbranding=1"
+              title="Format vertical Neil Cut"
+              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+              allowfullscreen></iframe>
+          </div>
+          <div class="video-info">
+            <div>
+              <p class="video-info-tag">// Format vertical · Short</p>
+              <p class="video-info-title">Format vertical</p>
+            </div>
+            <div class="video-info-meta">Neil Cut · Format court</div>
+          </div>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- Contact montage -->
+    <section id="contact">
+      <p class="s-label">// 02 — Contact</p>
+      <div class="contact-grid reveal">
+        <div>
+          <h2 class="contact-headline">On bosse ensemble ?</h2>
+        </div>
+        <div class="contact-list">
+          <a href="https://www.youtube.com/@Neil-cut" target="_blank" class="contact-item">
+            <div><div class="ci-label">YouTube</div><div class="ci-val">@Neil-cut</div></div>
+            <span class="ci-arrow">→</span>
+          </a>
+          <a href="https://discord.com/users/985198553884409876" target="_blank" class="contact-item">
+            <div><div class="ci-label">Discord</div><div class="ci-val">Neil_lieN</div></div>
+            <span class="ci-arrow">→</span>
+          </a>
+          <div class="contact-item contact-plain">
+            <div><div class="ci-label">Email</div><div class="ci-val-small" style="user-select:all;">dneil43210@gmail.com</div></div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <footer>
+      <p class="footer-copy">© 2025 Neil Cut — Tous droits réservés</p>
+      <p class="footer-logo">Neil<em>Cut</em></p>
+      <p class="footer-claude">(merci Claude)</p>
+    </footer>
+
+  </div><!-- /montage -->
+
+</div><!-- /site -->
+
+<script>
+// ── STATE ──
+let currentSection = null;
+
+// ── LANDING → SITE ──
+function enterSection(section) {
+  document.getElementById('landing').classList.add('hidden');
+  document.getElementById('site').classList.add('active');
+  switchTo(section);
+  window.scrollTo(0,0);
+}
+
+function goHome() {
+  document.getElementById('landing').classList.remove('hidden');
+  document.getElementById('site').classList.remove('active');
+  // Reset heroes animation
+  document.querySelectorAll('.hero-tag,.hero-title,.hero-desc').forEach(el => {
+    el.style.animation='none'; el.offsetHeight; el.style.animation='';
+  });
+  window.scrollTo(0,0);
+}
+
+// ── SWITCH DE SECTION ──
+function switchTo(section) {
+  currentSection = section;
+
+  // Sections
+  document.querySelectorAll('.content-section').forEach(s => s.classList.remove('active'));
+  document.getElementById('section-'+section).classList.add('active');
+
+  // Switcher tabs
+  document.querySelectorAll('.switcher-btn').forEach(b => b.classList.remove('active'));
+  document.getElementById('sw-'+section).classList.add('active');
+
+  window.scrollTo(0,0);
+
+  // Re-trigger reveals
+  setTimeout(() => {
+    document.querySelectorAll('#section-'+section+' .reveal').forEach(el => {
+      el.classList.remove('visible');
+    });
+    requestAnimationFrame(() => {
+      revealObserver.disconnect();
+      document.querySelectorAll('.reveal').forEach(el => revealObserver.observe(el));
+    });
+  }, 50);
+}
+
+// ── REVEAL ──
+const revealObserver = new IntersectionObserver(entries => {
+  entries.forEach(e => { if(e.isIntersecting) { e.target.classList.add('visible'); revealObserver.unobserve(e.target); } });
+}, { threshold:.1 });
+document.querySelectorAll('.reveal').forEach(el => revealObserver.observe(el));
+
+// ── LIGHTBOX ──
+function openLB(src, cap) {
+  document.getElementById('lb-img').src = src;
+  document.getElementById('lb-cap').textContent = cap || '';
+  document.getElementById('lightbox').classList.add('active');
+  document.body.style.overflow = 'hidden';
+  document.documentElement.style.overflow = 'hidden';
+}
+function closeLB() {
+  document.getElementById('lightbox').classList.remove('active');
+  document.body.style.overflow = '';
+  document.documentElement.style.overflow = '';
+}
+function closeLBClick(e) { if(e.target === document.getElementById('lightbox')) closeLB(); }
+document.addEventListener('keydown', e => { if(e.key==='Escape') closeLB(); });
+
+// ── VERTICAL VIDEO (ajouter le lien ici quand dispo) ──
+// Pour activer, décommente et remplace VIDEO_ID par l'ID YouTube
+// const verticalId = 'VIDEO_ID';
+// const row = document.getElementById('vertical-video-row');
+// const embed = document.getElementById('vertical-embed');
+// embed.innerHTML = `<iframe src="https://www.youtube.com/embed/${verticalId}?rel=0" allowfullscreen style="position:absolute;inset:0;width:100%;height:100%;border:none;"></iframe>`;
+// row.style.display = 'grid';
+
+// ── PARALLAX ──
+window.addEventListener('scroll', () => {
+  const bg = document.querySelector('#section-'+currentSection+' .hero-bg');
+  if(bg) bg.style.transform = `scale(1.03) translateY(${window.scrollY * .1}px)`;
+});
+
+// ── NAV ACTIVE ──
+window.addEventListener('scroll', () => {
+  if(!currentSection) return;
+  const sections = document.querySelectorAll('#section-'+currentSection+' section[id]');
+  let cur = '';
+  sections.forEach(s => { if(window.scrollY >= s.offsetTop - 80) cur = s.id; });
+  document.querySelectorAll('.nav-links a').forEach(a => {
+    a.classList.toggle('active', a.getAttribute('href')==='#'+cur);
+  });
+});
+</script>
+</body>
+</html>
